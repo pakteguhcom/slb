@@ -34,11 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const restartSurveyBtn = document.getElementById('restart-survey-btn');
     const instructionsModal = document.getElementById('instructions-modal');
     const closeInstructionsBtn = document.getElementById('close-instructions-btn');
-
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+    
+    let totalQuestions = 0;
     let questionsGenerated = false;
 
     function generateQuestions() {
         if (questionsGenerated) return;
+
+        let questionNames = new Set();
 
         surveyQuestions.forEach(q => {
             const questionCard = document.createElement('div');
@@ -49,10 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             questionHTML += `<p class="main-question">${q.question}</p>`;
             if (q.type === 'radio') {
+                const questionName = `q${q.id}`;
+                questionNames.add(questionName);
                 questionHTML += `<div class="options-group">`;
                 q.options.forEach(opt => {
                     const value = opt.replace(/[^a-zA-Z0-9]/g, "-");
-                    questionHTML += `<label><input type="radio" name="q${q.id}" value="${value}" required> ${opt}</label>`;
+                    questionHTML += `<label><input type="radio" name="${questionName}" value="${value}" required> ${opt}</label>`;
                 });
                 questionHTML += `</div>`;
             } else if (q.type === 'matrix') {
@@ -62,10 +69,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 questionHTML += `</tr></thead><tbody>`;
                 q.rows.forEach((row, index) => {
+                    const questionName = `q${q.id}_${index}`;
+                    questionNames.add(questionName);
                     questionHTML += `<tr><td>${row}</td>`;
                     q.columns.forEach(col => {
                         const value = col.replace(/[^a-zA-Z0-9]/g, "-");
-                        questionHTML += `<td><input type="radio" name="q${q.id}_${index}" value="${value}" required></td>`;
+                        questionHTML += `<td><label><input type="radio" name="${questionName}" value="${value}" required></label></td>`;
                     });
                     questionHTML += `</tr>`;
                 });
@@ -74,14 +83,28 @@ document.addEventListener('DOMContentLoaded', () => {
             questionCard.innerHTML = questionHTML;
             surveyForm.appendChild(questionCard);
         });
+
+        totalQuestions = questionNames.size;
         const submitButton = document.createElement('button');
         submitButton.type = 'submit';
+        submitButton.className = 'button-primary';
         submitButton.textContent = 'Lihat Hasil Analisis';
         surveyForm.appendChild(submitButton);
         questionsGenerated = true;
     }
 
-    // ================== PERUBAHAN ALUR LOGIKA ADA DI SINI ==================
+    function updateProgress() {
+        const formData = new FormData(surveyForm);
+        let answeredCount = 0;
+        // FormData.keys() tidak didukung di semua browser, cara ini lebih aman
+        for (let pair of formData.entries()) {
+            answeredCount++;
+        }
+        
+        const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
+        progressBar.style.width = `${progress}%`;
+    }
+
     startSurveyBtn.addEventListener('click', () => {
         const namaSiswa = document.getElementById('namaSiswa').value;
         const kelasSiswa = document.getElementById('kelasSiswa').value;
@@ -89,25 +112,18 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Silakan isi nama dan kelas terlebih dahulu.');
             return;
         }
-        // Simpan data siswa
         document.getElementById('result-nama').textContent = namaSiswa;
         document.getElementById('result-kelas').textContent = kelasSiswa;
         
-        // Sembunyikan form info siswa SEKARANG
         infoSection.classList.add('hidden');
-
-        // Tampilkan modal petunjuk
         instructionsModal.classList.remove('hidden');
     });
 
     closeInstructionsBtn.addEventListener('click', () => {
-        // Sembunyikan modal petunjuk
         instructionsModal.classList.add('hidden');
-    
-        // Tampilkan form survei (info section sudah disembunyikan sebelumnya)
         surveyForm.classList.remove('hidden');
+        progressContainer.classList.remove('hidden'); // Tampilkan progress bar
     });
-    // =======================================================================
     
     surveyForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -119,9 +135,12 @@ document.addEventListener('DOMContentLoaded', () => {
         displayAnalysis(answers);
         
         surveyForm.classList.add('hidden');
+        progressContainer.classList.add('hidden');
         resultSection.classList.remove('hidden');
         window.scrollTo(0, 0);
     });
+    
+    surveyForm.addEventListener('change', updateProgress);
 
     restartSurveyBtn.addEventListener('click', () => {
         surveyForm.reset();
@@ -129,10 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('kelasSiswa').value = '';
         
         resultSection.classList.add('hidden');
-        infoSection.classList.remove('hidden'); // Tampilkan kembali form nama/kelas
-
-        // Pastikan form survei disembunyikan lagi untuk alur yang benar
+        infoSection.classList.remove('hidden');
         surveyForm.classList.add('hidden');
+        updateProgress();
     });
 
     function displayAnalysis(answers) {
@@ -154,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const q20_tertarik = answers['q20_0'].includes('Sesuai');
         html += `<div class="analysis-category"><h3>🤝 Iklim Keamanan & Kebinekaan</h3>`;
         if (q23_betah && q23_kucil && q20_tertarik) {
-            html += `<p>Kamu merasa **aman, nyaman, dan tidak terkucilkan** di lingkungan sekolah. Kamu juga menunjukkan sikap terbuka terhadap keberagaman, seperti interaksi dengan siswa berkebutuhan khusus. Ini adalah tanda lingkungan sekolah yang sangat positif dan inklusif. Pertahankan sikap baikmu!</p>`;
+            html += `<p>Kamu merasa **aman, nyaman, dan tidak terkucilkan** di lingkungan sekolah. Kamu juga menunjukkan sikap terbuka terhadap keberagaman. Ini adalah tanda lingkungan sekolah yang sangat positif dan inklusif. Pertahankan sikap baikmu!</p>`;
         } else {
             html += `<p>Hasil analisismu menunjukkan adanya potensi masalah terkait rasa aman atau penerimaan di sekolah. Jika kamu merasa tidak nyaman, terancam, atau dikucilkan, **sangat penting untuk berbicara dengan guru BK, wali kelas, atau orang dewasa yang kamu percaya**. Sekolah seharusnya menjadi tempat yang aman untuk semua.</p>`;
         }
@@ -167,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (q9_jelas && q10_bantuan && q15_kuasai) {
             html += `<p>Kamu merasa bahwa guru-gurumu **menguasai materi, memberikan instruksi yang jelas, dan siap membantu** saat kamu mengalami kesulitan. Ini menunjukkan kualitas pengajaran yang tinggi di sekolahmu. Teruslah aktif bertanya dan berdiskusi di kelas!</p>`;
         } else {
-            html += `<p>Kamu mungkin merasa ada beberapa aspek pengajaran yang bisa ditingkatkan. Jika kamu sering merasa instruksi kurang jelas atau sulit mendapat bantuan, cobalah untuk **proaktif bertanya kepada guru setelah kelas** atau membentuk kelompok belajar dengan teman untuk memecahkan masalah bersama.</p>`;
+            html += `<p>Kamu mungkin merasa ada beberapa aspek pengajaran yang bisa ditingkatkan. Jika kamu sering merasa instruksi kurang jelas atau sulit mendapat bantuan, cobalah untuk **proaktif bertanya kepada guru setelah kelas** atau membentuk kelompok belajar dengan teman.</p>`;
         }
         html += `</div>`;
         
