@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DATABASE OF QUESTIONS (PASTE THE FULL LIST HERE) ---
+    // --- DATABASE OF QUESTIONS ---
     const surveyQuestions = [
         { id: 1, type: 'radio', question: "Apakah kamu perempuan atau laki-laki?", options: ["Perempuan", "Laki-laki"], category: 'demographics' },
         { id: 2, type: 'radio', question: "Ada berapa keluarga yang tinggal bersama di rumahmu?", options: ["Hanya keluarga intiku sendiri (orang tua dan saudara kandungku saja).", "Keluargaku bersama satu keluarga lain.", "Keluargaku bersama dua keluarga lain.", "Keluargaku bersama tiga atau lebih keluarga lain."], category: 'demographics' },
@@ -35,7 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const instructionsModal = document.getElementById('instructions-modal');
     const closeInstructionsBtn = document.getElementById('close-instructions-btn');
 
+    // Cek apakah pertanyaan sudah dibuat untuk mencegah duplikasi
+    let questionsGenerated = false; 
+
     function generateQuestions() {
+        if (questionsGenerated) return; // Hanya generate sekali
+
         surveyQuestions.forEach(q => {
             const questionCard = document.createElement('div');
             questionCard.className = 'question-card';
@@ -47,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (q.type === 'radio') {
                 questionHTML += `<div class="options-group">`;
                 q.options.forEach(opt => {
-                    const value = opt.split(' ')[0].replace(/[/()]/g, '');
+                    const value = opt.replace(/[^a-zA-Z0-9]/g, "-"); // Buat value unik
                     questionHTML += `<label><input type="radio" name="q${q.id}" value="${value}" required> ${opt}</label>`;
                 });
                 questionHTML += `</div>`;
@@ -60,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 q.rows.forEach((row, index) => {
                     questionHTML += `<tr><td>${row}</td>`;
                     q.columns.forEach(col => {
-                        const value = col.split(' ')[0].replace(/[/()]/g, '');
+                        const value = col.replace(/[^a-zA-Z0-9]/g, "-"); // Buat value unik
                         questionHTML += `<td><input type="radio" name="q${q.id}_${index}" value="${value}" required></td>`;
                     });
                     questionHTML += `</tr>`;
@@ -74,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.type = 'submit';
         submitButton.textContent = 'Lihat Hasil Analisis';
         surveyForm.appendChild(submitButton);
+        questionsGenerated = true; // Tandai bahwa pertanyaan sudah dibuat
     }
 
     startSurveyBtn.addEventListener('click', () => {
@@ -85,10 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         document.getElementById('result-nama').textContent = namaSiswa;
         document.getElementById('result-kelas').textContent = kelasSiswa;
+        
+        // Tampilkan modal petunjuk
         instructionsModal.classList.remove('hidden');
     });
 
     closeInstructionsBtn.addEventListener('click', () => {
+        // Sembunyikan modal dan tampilkan form survei
         instructionsModal.classList.add('hidden');
         infoSection.classList.add('hidden');
         surveyForm.classList.remove('hidden');
@@ -119,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const analysisContent = document.getElementById('analysis-content');
         let html = '';
         const q7_internet = answers['q7_6'] === 'Ada';
-        const q8_buku = (answers['q8_0'] !== 'Tidak' || answers['q8_4'] !== 'Tidak');
+        const q8_buku = (answers['q8_0'] !== 'Tidak-ada' || answers['q8_4'] !== 'Tidak-ada');
         html += `<div class="analysis-category"><h3>🏡 Dukungan Belajar di Rumah</h3>`;
         if (q7_internet && q8_buku) {
             html += `<p>Hasil survei menunjukkan kamu memiliki **akses internet dan buku yang memadai** di rumah. Ini adalah modal yang sangat baik untuk belajar mandiri. Manfaatkan fasilitas ini untuk memperluas pengetahuan di luar materi sekolah.</p>`;
@@ -127,9 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `<p>Terdapat potensi tantangan dalam fasilitas belajar di rumah. Jika kamu merasa kekurangan sumber belajar seperti buku atau akses internet, **jangan ragu untuk berdiskusi dengan guru atau orang tua** untuk mencari solusi, seperti memanfaatkan perpustakaan sekolah.</p>`;
         }
         html += `</div>`;
-        const q26_betah = answers['q26_0'] === 'Setuju' || answers['q26_0'] === 'Sangat';
-        const q26_kucil = answers['q26_1'] === 'Sangat' || answers['q26_1'] === 'Tidak';
-        const q22_tertarik = answers['q22_0'] === 'Sesuai' || answers['q22_0'] === 'Sangat';
+        const q26_betah = answers['q26_0'].includes('Setuju');
+        const q26_kucil = answers['q26_1'].includes('Tidak-Setuju');
+        const q22_tertarik = answers['q22_0'].includes('Sesuai');
         html += `<div class="analysis-category"><h3>🤝 Iklim Keamanan & Kebinekaan</h3>`;
         if (q26_betah && q26_kucil && q22_tertarik) {
             html += `<p>Kamu merasa **aman, nyaman, dan tidak terkucilkan** di lingkungan sekolah. Kamu juga menunjukkan sikap terbuka terhadap keberagaman, seperti interaksi dengan siswa berkebutuhan khusus. Ini adalah tanda lingkungan sekolah yang sangat positif dan inklusif. Pertahankan sikap baikmu!</p>`;
@@ -137,9 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `<p>Hasil analisismu menunjukkan adanya potensi masalah terkait rasa aman atau penerimaan di sekolah. Jika kamu merasa tidak nyaman, terancam, atau dikucilkan, **sangat penting untuk berbicara dengan guru BK, wali kelas, atau orang dewasa yang kamu percaya**. Sekolah seharusnya menjadi tempat yang aman untuk semua.</p>`;
         }
         html += `</div>`;
-        const q11_jelas = answers['q11_0'] === 'Di' || answers['q11_0'] === 'Di';
-        const q12_bantuan = answers['q12_1'] === 'Di' || answers['q12_1'] === 'Di';
-        const q17_kuasai = answers['q17_0'] === 'Sesuai' || answers['q17_0'] === 'Sangat';
+        const q11_jelas = answers['q11_0'].includes('sebagian-besar') || answers['q11_0'].includes('semua');
+        const q12_bantuan = answers['q12_1'].includes('sebagian-besar') || answers['q12_1'].includes('semua');
+        const q17_kuasai = answers['q17_0'].includes('Sesuai');
         html += `<div class="analysis-category"><h3>👩‍🏫 Kualitas Pengajaran</h3>`;
         if (q11_jelas && q12_bantuan && q17_kuasai) {
             html += `<p>Kamu merasa bahwa guru-gurumu **menguasai materi, memberikan instruksi yang jelas, dan siap membantu** saat kamu mengalami kesulitan. Ini menunjukkan kualitas pengajaran yang tinggi di sekolahmu. Teruslah aktif bertanya dan berdiskusi di kelas!</p>`;
@@ -150,5 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         analysisContent.innerHTML = html;
     }
 
+    // --- INITIALIZE THE APP ---
     generateQuestions();
 });
