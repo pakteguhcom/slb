@@ -17,7 +17,6 @@
             <p>Pada subtes ini, kamu akan mendapat pertanyaan mengenai dirimu, kebiasaanmu, pendapatmu, maupun sikapmu perihal lingkungan keluarga dan lingkungan belajarmu. <strong>Tidak ada jawaban yang benar atau salah</strong> pada setiap pertanyaan. Jawablah seluruh pertanyaan sesuai situasi/kondisi yang kamu alami.</p>
             <p>Bacalah seluruh pernyataan dan pilihan jawaban pada tabel dengan seksama. Kamu dapat menjawab dengan cara menekan/klik bulatan yang tersedia.</p>
             <hr>
-
             <p><strong>Contoh Soal:</strong></p>
             <p><i>Selama semester kemarin, pada saat mengikuti pelajaran di rumah pernakah kamu mengalami hal-hal berikut ini?</i></p>
             <table class="question-table example-table">
@@ -63,8 +62,20 @@
                 <input type="text" id="namaSiswa" name="namaSiswa" placeholder="Masukkan nama lengkap Anda" required>
             </div>
             <div class="info-input">
+                <label for="tempatLahir">Tempat Lahir</label>
+                <input type="text" id="tempatLahir" name="tempatLahir" placeholder="Masukkan tempat lahir" required>
+            </div>
+            <div class="info-input">
+                <label for="tanggalLahir">Tanggal Lahir</label>
+                <input type="date" id="tanggalLahir" name="tanggalLahir" required>
+            </div>
+            <div class="info-input">
                 <label for="kelasSiswa">Kelas</label>
                 <input type="text" id="kelasSiswa" name="kelasSiswa" placeholder="Contoh: IX A" required>
+            </div>
+             <div class="info-input">
+                <label for="token">Token</label>
+                <input type="text" id="token" name="token" placeholder="Masukkan token ujian" required>
             </div>
              <button id="start-survey-btn" class="button-primary">Mulai Survei</button>
         </div>
