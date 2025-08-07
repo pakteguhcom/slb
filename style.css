@@ -7,6 +7,7 @@
     --border-color: #E2E8F0;
     --shadow-color: rgba(74, 144, 226, 0.15);
     --success-color: #34D399;
+    --secondary-color: #6c757d;
 }
 
 * {
@@ -56,13 +57,15 @@ header p {
 /* Progress Bar Styling */
 #progress-container {
     width: 100%;
+    margin-bottom: 30px;
+}
+#progress-bar-container {
+    width: 100%;
     height: 12px;
     background-color: var(--border-color);
     border-radius: 6px;
     overflow: hidden;
-    margin-bottom: 30px;
 }
-
 #progress-bar {
     width: 0%;
     height: 100%;
@@ -70,6 +73,13 @@ header p {
     border-radius: 6px;
     transition: width 0.4s ease-in-out;
 }
+#progress-text {
+    text-align: right;
+    font-size: 0.9rem;
+    color: #64748B;
+    margin-top: 5px;
+}
+
 
 /* Form Input Siswa */
 #info-section {
@@ -99,20 +109,22 @@ header p {
     box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-/* Card Pertanyaan */
+/* Question Styling */
 .question-card {
     background-color: #fff;
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 25px;
-    margin-bottom: 30px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: none; /* Sembunyikan semua soal secara default */
+}
+.question-card.active {
+    display: block; /* Tampilkan hanya soal yang aktif */
 }
 .question-card h3 {
-    margin-top: 0;
-    color: var(--primary-color);
     font-size: 1rem;
     font-weight: 700;
+    color: var(--primary-color);
     margin-bottom: 15px;
 }
 .question-card .main-question {
@@ -130,6 +142,7 @@ header p {
     position: absolute;
     width: 100%;
     height: 100%;
+    cursor: pointer;
 }
 .options-group label, .question-table label {
     display: flex;
@@ -138,7 +151,6 @@ header p {
     padding: 15px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    margin-bottom: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
     width: 100%;
@@ -171,7 +183,6 @@ header p {
 .options-group label {
     margin-bottom: 0;
 }
-
 
 /* Table-based questions */
 .question-table {
@@ -212,25 +223,43 @@ header p {
     margin: 0;
 }
 
-/* Tombol Utama */
-.button-primary {
-    display: block;
-    width: 100%;
+/* Tombol */
+#navigation-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+.button-primary, .button-secondary {
     padding: 15px;
-    background-color: var(--primary-color);
-    color: white;
     border: none;
     border-radius: 8px;
     font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s;
-    margin-top: 20px;
+    width: 48%;
+}
+.button-primary {
+    background-color: var(--primary-color);
+    color: white;
 }
 .button-primary:hover {
     background-color: #357ABD;
     transform: translateY(-2px);
     box-shadow: 0 4px 20px var(--shadow-color);
+}
+.button-secondary {
+    background-color: #fff;
+    color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+}
+.button-secondary:hover {
+    background-color: #F8FAFC;
+    border-color: var(--secondary-color);
+}
+.button-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Hasil Analisis */
@@ -285,10 +314,8 @@ header p {
     width: 100%;
     max-width: 700px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-    /* ================== PERUBAHAN UTAMA ADA DI SINI ================== */
-    max-height: 90vh; /* Batasi tinggi maksimal modal agar tidak melebihi layar */
-    overflow-y: auto; /* Tambahkan scrollbar vertikal jika kontennya lebih tinggi */
-    /* ================================================================ */
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal-content h2 {
@@ -303,19 +330,6 @@ header p {
     border: none;
     border-top: 1px solid var(--border-color);
     margin: 20px 0;
-}
-.modal-content .example-table {
-    font-size: 0.9em;
-}
-.example-table th {
-    font-size: 0.85em;
-}
-
-#close-instructions-btn {
-    background-color: var(--success-color);
-}
-#close-instructions-btn:hover {
-    background-color: #25a274;
 }
 
 .hidden {
