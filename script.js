@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         questionsGenerated = true;
     }
 
+    // ================== PERUBAHAN ALUR LOGIKA ADA DI SINI ==================
     startSurveyBtn.addEventListener('click', () => {
         const namaSiswa = document.getElementById('namaSiswa').value;
         const kelasSiswa = document.getElementById('kelasSiswa').value;
@@ -88,32 +89,25 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Silakan isi nama dan kelas terlebih dahulu.');
             return;
         }
+        // Simpan data siswa
         document.getElementById('result-nama').textContent = namaSiswa;
         document.getElementById('result-kelas').textContent = kelasSiswa;
         
+        // Sembunyikan form info siswa SEKARANG
+        infoSection.classList.add('hidden');
+
+        // Tampilkan modal petunjuk
         instructionsModal.classList.remove('hidden');
     });
 
-    // ================== PERUBAHAN UTAMA ADA DI SINI ==================
     closeInstructionsBtn.addEventListener('click', () => {
-        // Kita hapus 'alert' karena sudah tidak diperlukan.
-        
-        // PENDEKATAN BARU: Langsung mengubah style 'display'.
-        // Ini adalah cara yang paling pasti untuk menyembunyikan elemen.
-        
-        // Sembunyikan modal dan info section
-        instructionsModal.style.display = 'none';
-        infoSection.style.display = 'none';
-        
-        // Tampilkan form survei
-        surveyForm.style.display = 'block';
-
-        // Untuk jaga-jaga, kita juga tetap manipulasi class 'hidden'
+        // Sembunyikan modal petunjuk
         instructionsModal.classList.add('hidden');
-        infoSection.classList.add('hidden');
+    
+        // Tampilkan form survei (info section sudah disembunyikan sebelumnya)
         surveyForm.classList.remove('hidden');
     });
-    // ================================================================
+    // =======================================================================
     
     surveyForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -123,8 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
             answers[key] = value;
         }
         displayAnalysis(answers);
-        surveyForm.style.display = 'none'; // Gunakan style untuk konsistensi
-        resultSection.style.display = 'block'; // Gunakan style untuk konsistensi
+        
+        surveyForm.classList.add('hidden');
+        resultSection.classList.remove('hidden');
         window.scrollTo(0, 0);
     });
 
@@ -133,12 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('namaSiswa').value = '';
         document.getElementById('kelasSiswa').value = '';
         
-        // Kembalikan ke state awal
-        resultSection.style.display = 'none';
-        infoSection.style.display = 'block';
+        resultSection.classList.add('hidden');
+        infoSection.classList.remove('hidden'); // Tampilkan kembali form nama/kelas
 
-        // Pastikan modal petunjuk juga tersembunyi
-        instructionsModal.style.display = 'none';
+        // Pastikan form survei disembunyikan lagi untuk alur yang benar
+        surveyForm.classList.add('hidden');
     });
 
     function displayAnalysis(answers) {
