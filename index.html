@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -17,49 +17,30 @@
             <p>Pada subtes ini, kamu akan mendapat pertanyaan mengenai dirimu, kebiasaanmu, pendapatmu, maupun sikapmu perihal lingkungan keluarga dan lingkungan belajarmu. <strong>Tidak ada jawaban yang benar atau salah</strong> pada setiap pertanyaan. Jawablah seluruh pertanyaan sesuai situasi/kondisi yang kamu alami.</p>
             <p>Bacalah seluruh pernyataan dan pilihan jawaban pada tabel dengan seksama. Kamu dapat menjawab dengan cara menekan/klik bulatan yang tersedia.</p>
             <hr>
-            <p><strong>Contoh Soal:</strong></p>
-            <p><i>Selama semester kemarin, pada saat mengikuti pelajaran di rumah pernakah kamu mengalami hal-hal berikut ini?</i></p>
-            <table class="question-table example-table">
-                 <thead>
-                    <tr>
-                        <th>Pernyataan</th>
-                        <th>Tidak Pernah</th>
-                        <th>Pernah pada beberapa pelajaran</th>
-                        <th>Pernah pada Sebagian besar pelajaran</th>
-                        <th>Pernah pada semua pelajaran</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Aku yakin mampu mendapatkan nilai yang baik.</td>
-                        <td><input type="radio" name="contoh" disabled></td>
-                        <td><input type="radio" name="contoh" checked disabled></td>
-                        <td><input type="radio" name="contoh" disabled></td>
-                        <td><input type="radio" name="contoh" disabled></td>
-                    </tr>
-                </tbody>
-            </table>
             <button id="close-instructions-btn">Saya Mengerti, Lanjutkan!</button>
         </div>
     </div>
 
-    <div class="container">
+    <div class="main-container">
         <header>
             <h1>Survei Lingkungan Belajar</h1>
             <p>Isi data diri dan jawab semua pertanyaan dengan jujur sesuai kondisimu.</p>
         </header>
 
+        <div id="progress-container" class="hidden">
+            <div id="progress-bar"></div>
+        </div>
+
         <div id="info-section">
-            <h2>Data Siswa</h2>
             <div class="info-input">
-                <label for="namaSiswa">Nama Lengkap:</label>
-                <input type="text" id="namaSiswa" name="namaSiswa" required>
+                <label for="namaSiswa">Nama Lengkap</label>
+                <input type="text" id="namaSiswa" name="namaSiswa" placeholder="Masukkan nama lengkap Anda" required>
             </div>
             <div class="info-input">
-                <label for="kelasSiswa">Kelas:</label>
-                <input type="text" id="kelasSiswa" name="kelasSiswa" required>
+                <label for="kelasSiswa">Kelas</label>
+                <input type="text" id="kelasSiswa" name="kelasSiswa" placeholder="Contoh: IX A" required>
             </div>
-             <button id="start-survey-btn">Mulai Survei</button>
+             <button id="start-survey-btn" class="button-primary">Mulai Survei</button>
         </div>
 
 
@@ -67,12 +48,14 @@
             </form>
 
         <div id="result-section" class="hidden">
-            <h2>Hasil Analisis Survei Lingkungan Belajar</h2>
-            <p><strong>Nama:</strong> <span id="result-nama"></span></p>
-            <p><strong>Kelas:</strong> <span id="result-kelas"></span></p>
+            <h2>Hasil Analisis Survei</h2>
+            <div class="result-info">
+                <p><strong>Nama:</strong> <span id="result-nama"></span></p>
+                <p><strong>Kelas:</strong> <span id="result-kelas"></span></p>
+            </div>
             <div id="analysis-content">
                 </div>
-            <button id="restart-survey-btn">Ulangi Survei</button>
+            <button id="restart-survey-btn" class="button-primary">Ulangi Survei</button>
         </div>
     </div>
 
