@@ -95,6 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     closeInstructionsBtn.addEventListener('click', () => {
+        // ---- KODE TES: Baris ini akan menampilkan pop-up ----
+        alert("Tombol 'Lanjutkan' berhasil diklik!"); 
+        // ---------------------------------------------------
+
+        // Sembunyikan modal dan tampilkan form survei
         instructionsModal.classList.add('hidden');
         infoSection.classList.add('hidden');
         surveyForm.classList.remove('hidden');
@@ -125,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const analysisContent = document.getElementById('analysis-content');
         let html = '';
         
-        // Analisis dengan Nomor Soal yang Baru
         const q6_internet = answers['q6_6'] === 'Ada';
         const q7_buku = (answers['q7_0'] !== 'Tidak-ada' || answers['q7_4'] !== 'Tidak-ada');
         html += `<div class="analysis-category"><h3>🏡 Dukungan Belajar di Rumah</h3>`;
@@ -161,6 +165,5 @@ document.addEventListener('DOMContentLoaded', () => {
         analysisContent.innerHTML = html;
     }
 
-    // --- INITIALIZE THE APP ---
     generateQuestions();
 });
