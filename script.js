@@ -53,13 +53,22 @@ document.addEventListener('DOMContentLoaded', () => {
                  questionHTML += `<p class="scenario"><i>${q.scenario}</i></p>`;
             }
             questionHTML += `<p class="main-question">${q.question}</p>`;
+
+            // ================== PERUBAHAN UTAMA ADA DI SINI ==================
             if (q.type === 'radio') {
                 const questionName = `q${q.id}`;
                 questionNames.add(questionName);
                 questionHTML += `<div class="options-group">`;
-                q.options.forEach(opt => {
+                q.options.forEach((opt, index) => {
+                    const optionId = `q${q.id}_opt${index}`;
                     const value = opt.replace(/[^a-zA-Z0-9]/g, "-");
-                    questionHTML += `<label><input type="radio" name="${questionName}" value="${value}" required> ${opt}</label>`;
+                    // Struktur diubah menjadi <input> terpisah dari <label for="...">
+                    questionHTML += `
+                        <div>
+                            <input type="radio" id="${optionId}" name="${questionName}" value="${value}" required>
+                            <label for="${optionId}">${opt}</label>
+                        </div>
+                    `;
                 });
                 questionHTML += `</div>`;
             } else if (q.type === 'matrix') {
@@ -68,18 +77,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     questionHTML += `<th>${col}</th>`;
                 });
                 questionHTML += `</tr></thead><tbody>`;
-                q.rows.forEach((row, index) => {
-                    const questionName = `q${q.id}_${index}`;
+                q.rows.forEach((row, rowIndex) => {
+                    const questionName = `q${q.id}_${rowIndex}`;
                     questionNames.add(questionName);
                     questionHTML += `<tr><td>${row}</td>`;
-                    q.columns.forEach(col => {
+                    q.columns.forEach((col, colIndex) => {
+                        const optionId = `q${q.id}_r${rowIndex}_c${colIndex}`;
                         const value = col.replace(/[^a-zA-Z0-9]/g, "-");
-                        questionHTML += `<td><label><input type="radio" name="${questionName}" value="${value}" required></label></td>`;
+                        // Struktur diubah menjadi <input> terpisah dari <label for="...">
+                        questionHTML += `
+                            <td>
+                                <input type="radio" id="${optionId}" name="${questionName}" value="${value}" required>
+                                <label for="${optionId}"></label>
+                            </td>
+                        `;
                     });
                     questionHTML += `</tr>`;
                 });
                 questionHTML += `</tbody></table>`;
             }
+            // =======================================================================
+            
             questionCard.innerHTML = questionHTML;
             surveyForm.appendChild(questionCard);
         });
@@ -95,11 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateProgress() {
         const formData = new FormData(surveyForm);
-        let answeredCount = 0;
-        // FormData.keys() tidak didukung di semua browser, cara ini lebih aman
-        for (let pair of formData.entries()) {
-            answeredCount++;
-        }
+        const answeredKeys = new Set(formData.keys());
+        const answeredCount = answeredKeys.size;
         
         const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
         progressBar.style.width = `${progress}%`;
@@ -122,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeInstructionsBtn.addEventListener('click', () => {
         instructionsModal.classList.add('hidden');
         surveyForm.classList.remove('hidden');
-        progressContainer.classList.remove('hidden'); // Tampilkan progress bar
+        progressContainer.classList.remove('hidden');
     });
     
     surveyForm.addEventListener('submit', (e) => {
@@ -150,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resultSection.classList.add('hidden');
         infoSection.classList.remove('hidden');
         surveyForm.classList.add('hidden');
-        updateProgress();
+        progressBar.style.width = '0%';
     });
 
     function displayAnalysis(answers) {
