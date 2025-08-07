@@ -20,11 +20,23 @@
             <p><strong>Contoh Soal:</strong></p>
             <p><i>Selama semester kemarin, pada saat mengikuti pelajaran di rumah pernakah kamu mengalami hal-hal berikut ini?</i></p>
             <table class="question-table example-table">
-                <thead>
-                    <tr><th>Pernyataan</th><th>Tidak Pernah</th><th>Kadang-kadang</th><th>Sering</th></tr>
+                 <thead>
+                    <tr>
+                        <th>Pernyataan</th>
+                        <th>Tidak Pernah</th>
+                        <th>Pernah pada beberapa pelajaran</th>
+                        <th>Pernah pada Sebagian besar pelajaran</th>
+                        <th>Pernah pada semua pelajaran</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    <tr><td>Aku yakin mampu mendapatkan nilai yang baik.</td><td><input type="radio" disabled></td><td><input type="radio" checked disabled></td><td><input type="radio" disabled></td></tr>
+                    <tr>
+                        <td>Aku yakin mampu mendapatkan nilai yang baik.</td>
+                        <td><input type="radio" name="contoh" disabled></td>
+                        <td><input type="radio" name="contoh" checked disabled></td>
+                        <td><input type="radio" name="contoh" disabled></td>
+                        <td><input type="radio" name="contoh" disabled></td>
+                    </tr>
                 </tbody>
             </table>
             <button id="close-instructions-btn">Saya Mengerti, Lanjutkan!</button>
