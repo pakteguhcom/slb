@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survei Lingkungan Belajar</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Survei Lingkungan Belajar</h1>
+            <p>Isi data diri dan jawab semua pertanyaan dengan jujur sesuai kondisimu.</p>
+        </header>
+
+        <div id="info-section">
+            <h2>Data Siswa</h2>
+            <div class="info-input">
+                <label for="namaSiswa">Nama Lengkap:</label>
+                <input type="text" id="namaSiswa" name="namaSiswa" required>
+            </div>
+            <div class="info-input">
+                <label for="kelasSiswa">Kelas:</label>
+                <input type="text" id="kelasSiswa" name="kelasSiswa" required>
+            </div>
+             <button id="start-survey-btn">Mulai Survei</button>
+        </div>
+
+
+        <form id="survey-form" class="hidden">
+            </form>
+
+        <div id="result-section" class="hidden">
+            <h2>Hasil Analisis Survei Lingkungan Belajar</h2>
+            <p><strong>Nama:</strong> <span id="result-nama"></span></p>
+            <p><strong>Kelas:</strong> <span id="result-kelas"></span></p>
+            <div id="analysis-content">
+                </div>
+            <button id="restart-survey-btn">Ulangi Survei</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
