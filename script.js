@@ -94,16 +94,26 @@ document.addEventListener('DOMContentLoaded', () => {
         instructionsModal.classList.remove('hidden');
     });
 
+    // ================== PERUBAHAN UTAMA ADA DI SINI ==================
     closeInstructionsBtn.addEventListener('click', () => {
-        // ---- KODE TES: Baris ini akan menampilkan pop-up ----
-        alert("Tombol 'Lanjutkan' berhasil diklik!"); 
-        // ---------------------------------------------------
+        // Kita hapus 'alert' karena sudah tidak diperlukan.
+        
+        // PENDEKATAN BARU: Langsung mengubah style 'display'.
+        // Ini adalah cara yang paling pasti untuk menyembunyikan elemen.
+        
+        // Sembunyikan modal dan info section
+        instructionsModal.style.display = 'none';
+        infoSection.style.display = 'none';
+        
+        // Tampilkan form survei
+        surveyForm.style.display = 'block';
 
-        // Sembunyikan modal dan tampilkan form survei
+        // Untuk jaga-jaga, kita juga tetap manipulasi class 'hidden'
         instructionsModal.classList.add('hidden');
         infoSection.classList.add('hidden');
         surveyForm.classList.remove('hidden');
     });
+    // ================================================================
     
     surveyForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -113,8 +123,8 @@ document.addEventListener('DOMContentLoaded', () => {
             answers[key] = value;
         }
         displayAnalysis(answers);
-        surveyForm.classList.add('hidden');
-        resultSection.classList.remove('hidden');
+        surveyForm.style.display = 'none'; // Gunakan style untuk konsistensi
+        resultSection.style.display = 'block'; // Gunakan style untuk konsistensi
         window.scrollTo(0, 0);
     });
 
@@ -122,8 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
         surveyForm.reset();
         document.getElementById('namaSiswa').value = '';
         document.getElementById('kelasSiswa').value = '';
-        resultSection.classList.add('hidden');
-        infoSection.classList.remove('hidden');
+        
+        // Kembalikan ke state awal
+        resultSection.style.display = 'none';
+        infoSection.style.display = 'block';
+
+        // Pastikan modal petunjuk juga tersembunyi
+        instructionsModal.style.display = 'none';
     });
 
     function displayAnalysis(answers) {
