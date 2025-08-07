@@ -10,6 +10,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+    <div id="instructions-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2>Petunjuk Survei Lingkungan Belajar</h2>
+            <p>Pada subtes ini, kamu akan mendapat pertanyaan mengenai dirimu, kebiasaanmu, pendapatmu, maupun sikapmu perihal lingkungan keluarga dan lingkungan belajarmu. <strong>Tidak ada jawaban yang benar atau salah</strong> pada setiap pertanyaan. Jawablah seluruh pertanyaan sesuai situasi/kondisi yang kamu alami.</p>
+            <p>Bacalah seluruh pernyataan dan pilihan jawaban pada tabel dengan seksama. Kamu dapat menjawab dengan cara menekan/klik bulatan yang tersedia.</p>
+            <hr>
+            <p><strong>Contoh Soal:</strong></p>
+            <p><i>Selama semester kemarin, pada saat mengikuti pelajaran di rumah pernakah kamu mengalami hal-hal berikut ini?</i></p>
+            <table class="question-table example-table">
+                <thead>
+                    <tr><th>Pernyataan</th><th>Tidak Pernah</th><th>Kadang-kadang</th><th>Sering</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Aku yakin mampu mendapatkan nilai yang baik.</td><td><input type="radio" disabled></td><td><input type="radio" checked disabled></td><td><input type="radio" disabled></td></tr>
+                </tbody>
+            </table>
+            <button id="close-instructions-btn">Saya Mengerti, Lanjutkan!</button>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <h1>Survei Lingkungan Belajar</h1>
