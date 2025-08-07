@@ -141,9 +141,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners ---
     startSurveyBtn.addEventListener('click', () => {
         const namaSiswa = document.getElementById('namaSiswa').value;
+        const tempatLahir = document.getElementById('tempatLahir').value;
+        const tanggalLahir = document.getElementById('tanggalLahir').value;
         const kelasSiswa = document.getElementById('kelasSiswa').value;
-        if (namaSiswa.trim() === '' || kelasSiswa.trim() === '') {
-            alert('Silakan isi nama dan kelas terlebih dahulu.');
+        const token = document.getElementById('token').value;
+
+        if (namaSiswa.trim() === '' || tempatLahir.trim() === '' || tanggalLahir.trim() === '' || kelasSiswa.trim() === '' || token.trim() === '') {
+            alert('Harap lengkapi semua data diri terlebih dahulu.');
             return;
         }
         document.getElementById('result-nama').textContent = namaSiswa;
@@ -198,8 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
     restartSurveyBtn.addEventListener('click', () => {
         currentQuestionIndex = 0;
         surveyForm.reset();
-        document.getElementById('namaSiswa').value = '';
-        document.getElementById('kelasSiswa').value = '';
+        
+        // Mengosongkan semua input di info section
+        const infoInputs = infoSection.querySelectorAll('input');
+        infoInputs.forEach(input => input.value = '');
         
         resultSection.classList.add('hidden');
         infoSection.classList.remove('hidden');
