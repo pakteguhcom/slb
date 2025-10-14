@@ -3,107 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survei Lingkungan Belajar</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Spin Wheel - Pembagian Kelompok</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-    <div id="instructions-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h2>Petunjuk Survei Lingkungan Belajar</h2>
-            <p>Pada subtes ini, kamu akan mendapat pertanyaan mengenai dirimu, kebiasaanmu, pendapatmu, maupun sikapmu perihal lingkungan keluarga dan lingkungan belajarmu. <strong>Tidak ada jawaban yang benar atau salah</strong> pada setiap pertanyaan. Jawablah seluruh pertanyaan sesuai situasi/kondisi yang kamu alami.</p>
-            <p>Bacalah seluruh pernyataan dan pilihan jawaban pada tabel dengan seksama. Kamu dapat menjawab dengan cara menekan/klik bulatan yang tersedia.</p>
-            <hr>
-            <p><strong>Contoh Soal:</strong></p>
-            <p><i>Selama semester kemarin, pada saat mengikuti pelajaran di rumah pernakah kamu mengalami hal-hal berikut ini?</i></p>
-            <table class="question-table example-table">
-                 <thead>
-                    <tr>
-                        <th>Pernyataan</th>
-                        <th>Tidak Pernah</th>
-                        <th>Pernah pada beberapa pelajaran</th>
-                        <th>Pernah pada Sebagian besar pelajaran</th>
-                        <th>Pernah pada semua pelajaran</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Aku yakin mampu mendapatkan nilai yang baik.</td>
-                        <td><label><input type="radio" name="contoh" disabled></label></td>
-                        <td><label><input type="radio" name="contoh" checked disabled></label></td>
-                        <td><label><input type="radio" name="contoh" disabled></label></td>
-                        <td><label><input type="radio" name="contoh" disabled></label></td>
-                    </tr>
-                </tbody>
-            </table>
-            <button id="close-instructions-btn" class="button-primary">Saya Mengerti, Lanjutkan!</button>
-        </div>
-    </div>
-
-    <div class="main-container">
+    <div class="container">
         <header>
-            <h1>Survei Lingkungan Belajar</h1>
-            <p id="header-subtitle">Isi data diri dan jawab semua pertanyaan dengan jujur sesuai kondisimu.</p>
+            <h1>🎡 Spin Wheel Estetik</h1>
+            <p>Pembagian Kelompok Otomatis dengan Musik Menegangkan</p>
         </header>
-
-        <div id="progress-container" class="hidden">
-            <div id="progress-bar-container">
-                <div id="progress-bar"></div>
+        <div class="music-controller">
+            <div class="music-info">
+                <span id="currentTrack">🎵 Pilih Musik</span>
             </div>
-            <div id="progress-text"></div>
+            <div class="music-controls">
+                <button id="prevTrack" class="btn-music">⏮️</button>
+                <button id="playPause" class="btn-music">▶️</button>
+                <button id="nextTrack" class="btn-music">⏭️</button>
+                <input type="range" id="volumeControl" min="0" max="100" value="50" class="volume-slider">
+                <span id="volumeLabel">50%</span>
+            </div>
+            <select id="musicSelector" class="music-select">
+                <option value="">Pilih Musik Background</option>
+                <option value="0">Dramatic Suspense 1</option>
+                <option value="1">Intense Build Up 2</option>
+                <option value="2">Tension Rising 3</option>
+                <option value="3">Epic Drums 4</option>
+                <option value="4">Mysterious Ambient 5</option>
+            </select>
         </div>
-
-        <div id="info-section">
-            <div class="info-input">
-                <label for="namaSiswa">Nama Lengkap</label>
-                <input type="text" id="namaSiswa" name="namaSiswa" placeholder="Masukkan nama lengkap Anda" required>
+        <div class="main-content">
+            <div class="wheel-section">
+                <div class="wheel-container">
+                    <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                    <button id="spinBtn" class="spin-button">PUTAR!</button>
+                    <div class="wheel-pointer">▼</div>
+                </div>
+                <div class="winner-display" id="winnerDisplay"></div>
             </div>
-            <div class="info-input">
-                <label for="tempatLahir">Tempat Lahir</label>
-                <input type="text" id="tempatLahir" name="tempatLahir" placeholder="Masukkan tempat lahir" required>
+            <div class="control-panel">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" data-tab="participants">👥 Peserta</button>
+                    <button class="tab-btn" data-tab="groups">👨‍👩‍👧‍👦 Kelompok</button>
+                    <button class="tab-btn" data-tab="settings">⚙️ Pengaturan</button>
+                </div>
+                <div class="tab-content active" id="participants">
+                    <div class="input-group">
+                        <input type="text" id="participantInput" placeholder="Masukkan nama peserta...">
+                        <button id="addBtn" class="btn-primary">Tambah</button>
+                    </div>
+                    <div class="participant-list" id="participantList"></div>
+                    <div class="action-buttons">
+                        <button id="clearAllBtn" class="btn-danger">Hapus Semua</button>
+                        <button id="saveListBtn" class="btn-success">Simpan List</button>
+                        <button id="loadListBtn" class="btn-info">Muat List</button>
+                    </div>
+                </div>
+                <div class="tab-content" id="groups">
+                    <div class="group-settings">
+                        <label for="groupCount">Jumlah Kelompok:</label>
+                        <input type="number" id="groupCount" min="2" max="10" value="2">
+                        <button id="divideGroupsBtn" class="btn-primary">Bagi Kelompok</button>
+                    </div>
+                    <div class="groups-display" id="groupsDisplay"></div>
+                    <button id="exportGroupsBtn" class="btn-success">Export Hasil</button>
+                </div>
+                <div class="tab-content" id="settings">
+                    <div class="settings-group">
+                        <label>
+                            <input type="checkbox" id="autoPlayMusic" checked>
+                            Auto-play musik saat spin
+                        </label>
+                        <label>
+                            <input type="checkbox" id="soundEffects" checked>
+                            Efek suara
+                        </label>
+                        <label>
+                            <input type="checkbox" id="confetti" checked>
+                            Animasi konfeti
+                        </label>
+                        <label for="spinDuration">Durasi Putaran (detik):</label>
+                        <input type="range" id="spinDuration" min="3" max="10" value="5">
+                        <span id="durationLabel">5s</span>
+                    </div>
+                    <div class="color-themes">
+                        <h3>Tema Warna:</h3>
+                        <button class="theme-btn" data-theme="rainbow">🌈 Rainbow</button>
+                        <button class="theme-btn" data-theme="ocean">🌊 Ocean</button>
+                        <button class="theme-btn" data-theme="sunset">🌅 Sunset</button>
+                        <button class="theme-btn" data-theme="forest">🌲 Forest</button>
+                    </div>
+                </div>
             </div>
-            <div class="info-input">
-                <label for="tanggalLahir">Tanggal Lahir</label>
-                <input type="date" id="tanggalLahir" name="tanggalLahir" required>
-            </div>
-            <div class="info-input">
-                <label for="kelasSiswa">Kelas</label>
-                <input type="text" id="kelasSiswa" name="kelasSiswa" placeholder="Contoh: IX A" required>
-            </div>
-             <div class="info-input">
-                <label for="token">Token</label>
-                <input type="text" id="token" name="token" placeholder="Masukkan token ujian" required>
-            </div>
-             <button id="start-survey-btn" class="button-primary">Mulai Survei</button>
         </div>
-
-
-        <form id="survey-form" class="hidden">
-            <div id="questions-wrapper">
-                </div>
-            
-            <div id="navigation-container">
-                <button type="button" id="prev-btn" class="button-secondary">Sebelumnya</button>
-                <button type="button" id="next-btn" class="button-primary">Selanjutnya</button>
-                <button type="submit" id="submit-btn" class="button-primary hidden">Lihat Hasil Analisis</button>
-            </div>
-        </form>
-
-        <div id="result-section" class="hidden">
-            <h2>Hasil Analisis Survei</h2>
-            <div class="result-info">
-                <p><strong>Nama:</strong> <span id="result-nama"></span></p>
-                <p><strong>Kelas:</strong> <span id="result-kelas"></span></p>
-            </div>
-            <div id="analysis-content">
-                </div>
-            <button id="restart-survey-btn" class="button-primary">Ulangi Survei</button>
+        <div class="history-section">
+            <h3>📜 Riwayat Spin</h3>
+            <div id="historyList" class="history-list"></div>
+            <button id="clearHistoryBtn" class="btn-danger">Hapus Riwayat</button>
         </div>
     </div>
-
-    <script src="script.js"></script>
+    <canvas id="confettiCanvas"></canvas>
+    <audio id="backgroundMusic" loop></audio>
+    <audio id="spinSound"></audio>
+    <audio id="winSound"></audio>
+    <script src="js/wheel.js"></script>
+    <script src="js/music.js"></script>
+    <script src="js/groups.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
