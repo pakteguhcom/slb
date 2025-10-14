@@ -1,0 +1,42 @@
+/* Glassmorphism Design */
+body {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive Layouts */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+}
+
+/* Animations */
+.spin-wheel {
+    transition: transform 0.5s ease-in-out;
+}
+
+.spin-wheel:hover {
+    transform: scale(1.1);
+}
+
+/* Theme Styling */
+.theme-dark {
+    background-color: #000;
+    color: #fff;
+}
+
+.theme-light {
+    background-color: #fff;
+    color: #000;
+}
