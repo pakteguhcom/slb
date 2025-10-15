@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="theme-color" content="#0b0f1a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <title>Spin & Group PWA</title>
+  <style>
+    :root{
+      --bg:#0b0f1a; --panel:#12182a; --accent:#6bf0ff; --accent2:#ff3d82; --text:#e8eefc;
+      --muted:#9fb0d1; --ok:#42f59b; --warn:#ffd75e; --danger:#ff6b6b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:radial-gradient(1200px 600px at 70% -10%, #182038 0%, #0b0f1a 60%) no-repeat, var(--bg);
+      color:var(--text); font: 500 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    }
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:16px 20px; position:sticky; top:0; background:rgba(11,15,26,.7); backdrop-filter: blur(12px);
+      border-bottom:1px solid #1e2640; z-index:10;
+    }
+    .title{display:flex; align-items:center; gap:12px}
+    .logo{width:32px; height:32px; border-radius:8px; background:conic-gradient(from 0deg, var(--accent), var(--accent2), #8a7dff, var(--accent)); box-shadow:0 0 12px rgba(107,240,255,.6) inset}
+    h1{font-size:clamp(16px, 2.2vw, 22px); margin:0}
+    .actions{display:flex; gap:8px; align-items:center}
+    button, .chip{
+      background:linear-gradient(180deg, #1a2141, #12182a); color:var(--text); border:1px solid #24305a; border-radius:10px;
+      padding:10px 14px; cursor:pointer; transition:.2s transform, .2s box-shadow, .2s background; font-weight:600; letter-spacing:.2px;
+    }
+    button:hover{transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,0,0,.25)}
+    button.primary{background:linear-gradient(180deg, #2a385f, #1c2646); border-color:#3a4d86; box-shadow:0 0 0 1px rgba(58,77,134,.4) inset}
+    button.success{background:linear-gradient(180deg, #1c3c35, #142a25); border-color:#2e6b5b}
+    button.warn{background:linear-gradient(180deg, #3c351c, #2a2514); border-color:#6b5b2e}
+    button.ghost{background:transparent}
+    .container{max-width:1100px; margin:0 auto; padding:18px 20px 32px}
+    .tabs{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px}
+    .tab{padding:10px 14px; border-radius:10px; background:#12182a; border:1px solid #24305a; cursor:pointer; color:var(--muted)}
+    .tab.active{color:var(--text); border-color:#4a66d1; box-shadow:0 0 0 2px rgba(74,102,209,.25) inset}
+    .layout{display:grid; grid-template-columns: 1.1fr .9fr; gap:16px}
+    @media(max-width: 960px){ .layout{grid-template-columns:1fr} }
+    .panel{background:linear-gradient(180deg, #101629, #0c1222); border:1px solid #1e2640; border-radius:16px; padding:14px}
+    .panel h2{margin:0 0 10px; font-size:18px}
+    .muted{color:var(--muted)}
+    .row{display:flex; gap:8px; flex-wrap:wrap}
+    input, select, textarea{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid #24305a; background:#0f1630; color:var(--text);
+      outline:none; transition:.2s border;
+    }
+    input:focus, textarea:focus{border-color:#4a66d1}
+    textarea{min-height:96px; resize:vertical}
+    .split{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    .cta{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .wheel-wrap{position:relative; aspect-ratio:1/1; width:100%; max-width:520px; margin:8px auto}
+    canvas#wheel{width:100%; height:100%; display:block}
+    .pointer{
+      position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+      width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent; border-bottom:20px solid var(--warn);
+      filter: drop-shadow(0 0 8px rgba(255,215,94,.5));
+    }
+    .result{
+      margin-top:10px; padding:12px; border-radius:12px; border:1px dashed #334070; background:#0f1630; text-align:center; font-size:18px
+    }
+    .history{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .pill{padding:8px 10px; background:#121a33; border:1px solid #24305a; border-radius:999px}
+    .groups{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:10px}
+    .group-card{border:1px solid #24305a; background:linear-gradient(180deg, #10192f, #0e1428); border-radius:14px; padding:10px}
+    .group-title{font-weight:700; margin-bottom:6px}
+    .member{padding:6px 8px; border-radius:8px; background:#0f1630; border:1px solid #1f2a4f; margin-top:6px}
+    .footer{margin-top:14px; font-size:13px; color:var(--muted)}
+    .install-banner{display:none; gap:8px; align-items:center}
+    .install-banner.show{display:flex}
+    .glow{text-shadow:0 0 12px rgba(107,240,255,.45)}
+    .danger{color:var(--danger)}
+    .ok{color:var(--ok)}
+    /* Overlay confetti canvas */
+    #fx{position:fixed; inset:0; pointer-events:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">
+      <div class="logo" aria-hidden="true"></div>
+      <h1 class="glow">Spin & Group</h1>
+    </div>
+    <div class="actions">
+      <div id="installBanner" class="install-banner">
+        <span class="muted">Install aplikasi</span>
+        <button id="installBtn" class="primary">Install</button>
+      </div>
+      <button id="shareBtn" class="ghost">Bagikan</button>
+      <button id="resetBtn" class="warn">Reset</button>
+    </div>
+  </header>
+
+  <canvas id="fx"></canvas>
+
+  <main class="container" id="app">
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" class="tab active" data-tab="wheel">Spin Wheel</button>
+      <button role="tab" aria-selected="false" class="tab" data-tab="groups">Pembagian Kelompok</button>
+    </div>
+
+    <section class="layout">
+      <div class="panel" aria-labelledby="dataTitle">
+        <h2 id="dataTitle">Data Peserta / Item</h2>
+        <p class="muted">Pisahkan dengan baris baru. Minimal 2 item untuk spin, minimal 1 untuk kelompok.</p>
+        <textarea id="itemsInput" placeholder="Contoh:
+Andi
+Budi
+Citra
+Diah
+Eka"></textarea>
+        <div class="row" style="margin-top:10px">
+          <div class="split">
+            <div>
+              <label class="muted">Aksi cepat</label>
+              <div class="cta">
+                <button id="shuffleBtn">Acak Urutan</button>
+                <button id="dedupeBtn">Hapus Duplikat</button>
+                <button id="trimBtn">Rapi & Bersihkan</button>
+              </div>
+            </div>
+            <div>
+              <label class="muted">Preferensi</label>
+              <div class="cta">
+                <label class="chip"><input type="checkbox" id="removeWinner" /> Hapus pemenang</label>
+                <label class="chip"><input type="checkbox" id="allowEmpty" /> Izinkan grup tak seimbang</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="footer">Data disimpan otomatis di perangkat ini.</p>
+      </div>
+
+      <div class="panel">
+        <div id="tab-wheel">
+          <h2>Spin Wheel</h2>
+          <div class="wheel-wrap" aria-live="polite">
+            <div class="pointer" aria-hidden="true"></div>
+            <canvas id="wheel" width="800" height="800" aria-label="Roda undian"></canvas>
+          </div>
+          <div class="cta">
+            <button id="spinBtn" class="primary">Spin</button>
+            <button id="previewBtn">Preview</button>
+            <label class="chip">
+              Kecepatan
+              <input id="speedInput" type="range" min="0.6" max="1.4" step="0.05" value="1" />
+            </label>
+            <label class="chip">
+              Tegang+
+              <input id="suspenseInput" type="range" min="0" max="1" step="0.05" value="0.6" />
+            </label>
+            <span id="countBadge" class="pill muted">0 item</span>
+          </div>
+          <div id="wheelResult" class="result muted">Belum ada hasil.</div>
+          <div id="history" class="history"></div>
+        </div>
+
+        <div id="tab-groups" style="display:none">
+          <h2>Pembagian Kelompok</h2>
+          <div class="row">
+            <label class="chip">Jumlah Kelompok
+              <input id="groupsCount" type="number" min="1" value="2" style="width:120px" />
+            </label>
+            <button id="groupBtn" class="success">Bagi Kelompok</button>
+            <button id="copyGroupsBtn">Salin Hasil</button>
+          </div>
+          <div id="groupsWrap" class="groups" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // ---------- Utilities ----------
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => [...document.querySelectorAll(sel)];
+    const storage = {
+      get(k, d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d }catch{ return d } },
+      set(k, v){ localStorage.setItem(k, JSON.stringify(v)) }
+    };
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const rng = (min, max) => Math.random() * (max - min) + min;
+    const shuffle = (arr) => { for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr };
+
+    // ---------- State ----------
+    const state = {
+      items: [],
+      history: [],
+      angle: 0, spinning: false,
+      audioCtx: null,
+      tickPhase: 0,
+      settings: {
+        removeWinner: storage.get('removeWinner', false),
+        allowEmpty: storage.get('allowEmpty', false),
+        speed: storage.get('speed', 1),
+        suspense: storage.get('suspense', .6),
+        groupsCount: storage.get('groupsCount', 2)
+      }
+    };
+
+    // ---------- Elements ----------
+    const itemsInput = $('#itemsInput');
+    const removeWinnerEl = $('#removeWinner');
+    const allowEmptyEl = $('#allowEmpty');
+    const speedInput = $('#speedInput');
+    const suspenseInput = $('#suspenseInput');
+    const groupsCountEl = $('#groupsCount');
+    const wheelCanvas = $('#wheel');
+    const wheelCtx = wheelCanvas.getContext('2d');
+    const resultEl = $('#wheelResult');
+    const historyEl = $('#history');
+    const countBadge = $('#countBadge');
+    const fxCanvas = $('#fx');
+    const fxCtx = fxCanvas.getContext('2d');
+
+    // ---------- PWA Install ----------
+    let deferredPrompt = null;
+    const installBanner = $('#installBanner');
+    const installBtn = $('#installBtn');
+    window.addEventListener('beforeinstallprompt', (e)=>{
+      e.preventDefault(); deferredPrompt = e;
+      installBanner.classList.add('show');
+    });
+    installBtn?.addEventListener('click', async ()=>{
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBanner.classList.remove('show');
+    });
+
+    // ---------- Tabs ----------
+    $$('.tab').forEach(tab=>{
+      tab.addEventListener('click', ()=>{
+        $$('.tab').forEach(t=>{ t.classList.remove('active'); t.setAttribute('aria-selected','false') });
+        tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+        const name = tab.dataset.tab;
+        $('#tab-wheel').style.display = name==='wheel' ? '' : 'none';
+        $('#tab-groups').style.display = name==='groups' ? '' : 'none';
+        resizeCanvases();
+        drawWheel();
+      });
+    });
+
+    // ---------- Items handling ----------
+    function parseItems(text){
+      return text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    }
+    function renderCount(){
+      countBadge.textContent = state.items.length + ' item';
+    }
+    function syncFromTextarea(){
+      state.items = parseItems(itemsInput.value);
+      storage.set('items', state.items);
+      renderCount();
+      drawWheel();
+    }
+    function syncToTextarea(){
+      itemsInput.value = state.items.join('\n');
+      renderCount();
+      drawWheel();
+    }
+
+    itemsInput.addEventListener('input', debounce(syncFromTextarea, 120));
+    function debounce(fn, t){ let id; return (...a)=>{ clearTimeout(id); id=setTimeout(()=>fn(...a), t) } }
+
+    $('#shuffleBtn').addEventListener('click', ()=>{
+      state.items = shuffle([...state.items]);
+      storage.set('items', state.items);
+      syncToTextarea();
+    });
+    $('#dedupeBtn').addEventListener('click', ()=>{
+      const uniq = [...new Map(state.items.map(s=>[s.toLowerCase(), s])).values()];
+      state.items = uniq; storage.set('items', state.items); syncToTextarea();
+    });
+    $('#trimBtn').addEventListener('click', ()=>{
+      const clean = state.items.map(s=>s.replace(/\s+/g,' ').trim()).filter(Boolean);
+      state.items = clean; storage.set('items', state.items); syncToTextarea();
+    });
+
+    removeWinnerEl.checked = state.settings.removeWinner;
+    allowEmptyEl.checked = state.settings.allowEmpty;
+    speedInput.value = state.settings.speed;
+    suspenseInput.value = state.settings.suspense;
+    groupsCountEl.value = state.settings.groupsCount;
+
+    removeWinnerEl.addEventListener('change', ()=>{ state.settings.removeWinner = removeWinnerEl.checked; storage.set('removeWinner', state.settings.removeWinner) });
+    allowEmptyEl.addEventListener('change', ()=>{ state.settings.allowEmpty = allowEmptyEl.checked; storage.set('allowEmpty', state.settings.allowEmpty) });
+    speedInput.addEventListener('input', ()=>{ state.settings.speed = +speedInput.value; storage.set('speed', state.settings.speed) });
+    suspenseInput.addEventListener('input', ()=>{ state.settings.suspense = +suspenseInput.value; storage.set('suspense', state.settings.suspense) });
+    groupsCountEl.addEventListener('input', ()=>{ state.settings.groupsCount = clamp(+groupsCountEl.value|0, 1, 99); groupsCountEl.value=state.settings.groupsCount; storage.set('groupsCount', state.settings.groupsCount) });
+
+    // ---------- Wheel drawing ----------
+    function sectorColors(n, seed=0){
+      const cols=[];
+      for(let i=0;i<n;i++){
+        const h = (i*360/n + 18*(i%3) + seed*17) % 360;
+        const s = 68 + (i%2)*8;
+        const l = 48 + (i%3)*6;
+        cols.push(`hsl(${h} ${s}% ${l}%)`);
+      }
+      return cols;
+    }
+
+    function drawWheel(){
+      const n = state.items.length;
+      const ctx = wheelCtx, {width:w, height:h} = wheelCanvas;
+      ctx.clearRect(0,0,w,h);
+      if(n===0){
+        ctx.fillStyle='#1a2240'; ctx.beginPath(); ctx.arc(w/2,h/2, Math.min(w,h)/2.4, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle='#7d8eb8'; ctx.font='600 22px system-ui'; ctx.textAlign='center'; ctx.fillText('Tambahkan item untuk mulai', w/2, h/2);
+        return;
+      }
+      const r = Math.min(w,h)/2.4;
+      const cx = w/2, cy = h/2;
+      const ang = Math.PI*2/n;
+      const cols = sectorColors(n);
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(state.angle);
+      for(let i=0;i<n;i++){
+        // slice
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.fillStyle = cols[i];
+        ctx.arc(0,0, r, i*ang, (i+1)*ang);
+        ctx.closePath();
+        ctx.fill();
+        // divider
+        ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(r*Math.cos(i*ang), r*Math.sin(i*ang)); ctx.stroke();
+
+        // label
+        ctx.save();
+        ctx.rotate((i+.5)*ang);
+        ctx.textAlign='right';
+        ctx.fillStyle='#0b0f1a';
+        ctx.font='700 16px system-ui';
+        ctx.fillText(state.items[i], r-12, 6);
+        ctx.restore();
+      }
+      // rim
+      ctx.lineWidth=12; ctx.strokeStyle='rgba(255,255,255,.12)';
+      ctx.beginPath(); ctx.arc(0,0, r, 0, Math.PI*2); ctx.stroke();
+
+      // hub
+      ctx.fillStyle='#0b0f1a'; ctx.strokeStyle='rgba(255,255,255,.2)';
+      ctx.lineWidth=4; ctx.beginPath(); ctx.arc(0,0, 28, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function currentIndex(){
+      const n = state.items.length;
+      if(n===0) return -1;
+      // angle 0 means sector 0 at pointer; pointer at top, canvas rotated by state.angle
+      const raw = (-state.angle % (Math.PI*2) + Math.PI*2) % (Math.PI*2);
+      const idx = Math.floor((raw) / (Math.PI*2/n));
+      return idx;
+    }
+
+    // ---------- Audio ----------
+    function ensureAudio(){
+      if(state.audioCtx) return state.audioCtx;
+      state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return state.audioCtx;
+    }
+    function beep(freq=1100, dur=0.03, vol=0.04){
+      const ctx = ensureAudio();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='square'; o.frequency.value=freq;
+      g.gain.value=vol;
+      o.connect(g).connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + dur);
+    }
+    function winSound(){
+      const ctx = ensureAudio();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='triangle';
+      const now = ctx.currentTime;
+      o.frequency.setValueAtTime(400, now);
+      o.frequency.exponentialRampToValueAtTime(1200, now+0.18);
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.15, now+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now+0.4);
+      o.connect(g).connect(ctx.destination);
+      o.start(now); o.stop(now+0.42);
+    }
+
+    // ---------- Confetti ----------
+    const confetti = (()=> {
+      let particles = [];
+      function spawn(x, y, n=120){
+        const w = fxCanvas.width, h = fxCanvas.height;
+        particles.length = 0;
+        for(let i=0;i<n;i++){
+          particles.push({
+            x, y,
+            vx: (Math.random()*2-1)*6,
+            vy: Math.random()*-6 - 4,
+            g: 0.18, life: rng(1.2, 1.8),
+            size: rng(2,5),
+            color: `hsl(${Math.random()*360} 90% 60%)`,
+            t: 0
+          });
+        }
+        animate();
+      }
+      let running=false;
+      function animate(){
+        if(running) return; running=true;
+        let last=performance.now();
+        (function loop(now){
+          const dt = (now-last)/1000; last=now;
+          const w = fxCanvas.width, h = fxCanvas.height;
+          fxCtx.clearRect(0,0,w,h);
+          particles = particles.filter(p=> p.t < p.life);
+          for(const p of particles){
+            p.t += dt;
+            p.vy += p.g;
+            p.x += p.vx;
+            p.y += p.vy;
+            fxCtx.fillStyle = p.color;
+            fxCtx.globalAlpha = 1 - p.t/p.life;
+            fxCtx.fillRect(p.x, p.y, p.size, p.size);
+            fxCtx.globalAlpha = 1;
+          }
+          if(particles.length>0){ requestAnimationFrame(loop) } else { running=false }
+        })(last);
+      }
+      function resize(){ fxCanvas.width = innerWidth * devicePixelRatio; fxCanvas.height = innerHeight * devicePixelRatio; fxCtx.scale(devicePixelRatio, devicePixelRatio) }
+      window.addEventListener('resize', resize, {passive:true});
+      resize();
+      return { spawn };
+    })();
+
+    // ---------- Spin logic ----------
+    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3) }
+
+    let spinRAF = null;
+    function spin(){
+      if(state.spinning) return;
+      const n = state.items.length;
+      if(n < 2){ flash(resultEl, 'Tambahkan minimal 2 item', true); return }
+      state.spinning = true;
+      $('#spinBtn').disabled = true;
+      const speed = state.settings.speed; // 0.6 - 1.4
+      const suspense = state.settings.suspense; // 0 - 1
+      // derive total rotations and duration based on suspense
+      const baseRot = rng(3.2, 3.8) * speed;
+      const extra = suspense * rng(1.2, 2.2);
+      const totalRot = baseRot + extra; // in turns
+      const duration = (2.8 + suspense*1.6) * (1.2/speed); // seconds
+      // pick target index
+      const targetIdx = Math.floor(Math.random()*n);
+      const sectorAngle = (Math.PI*2)/n;
+      const jitter = (Math.random() - .5) * sectorAngle * 0.22; // avoid exact center
+      const startAngle = state.angle;
+      const endAngle = (Math.PI*2)*totalRot + targetIdx*sectorAngle + jitter;
+
+      const t0 = performance.now();
+      let lastTickIdx = -1;
+
+      cancelAnimationFrame(spinRAF);
+      (function loop(t){
+        const elapsed = (t - t0)/1000;
+        const k = clamp(elapsed / duration, 0, 1);
+        const e = easeOutCubic(k);
+        const delta = endAngle * e;
+        state.angle = startAngle + delta;
+        // ticking each sector pass of pointer (top)
+        const idx = currentIndex();
+        if(idx !== lastTickIdx){
+          // speed-dependent tick pitch
+          beep(800 + (idx%5)*40, 0.02, 0.03);
+          lastTickIdx = idx;
+        }
+        drawWheel();
+        if(k<1){
+          spinRAF = requestAnimationFrame(loop);
+        }else{
+          // settle exactly on target sector center for clarity
+          const centerAdjust = targetIdx * sectorAngle + sectorAngle/2;
+          state.angle = Math.floor(state.angle/(Math.PI*2))*(Math.PI*2) + centerAdjust;
+          drawWheel();
+          concludeSpin(targetIdx);
+          state.spinning = false;
+          $('#spinBtn').disabled = false;
+        }
+      })(t0);
+    }
+
+    function concludeSpin(idx){
+      const winner = state.items[idx];
+      resultEl.classList.remove('muted'); resultEl.textContent = 'Hasil: ' + winner;
+      state.history.unshift(winner);
+      renderHistory();
+      winSound();
+      // confetti at top center pointer
+      const rect = wheelCanvas.getBoundingClientRect();
+      const x = rect.left + rect.width/2;
+      const y = rect.top + 8;
+      confetti.spawn(x, y, 140);
+      if(removeWinnerEl.checked){
+        state.items.splice(idx, 1);
+        storage.set('items', state.items);
+        syncToTextarea();
+      }
+    }
+
+    function renderHistory(){
+      historyEl.innerHTML = '';
+      state.history.slice(0, 12).forEach(h=>{
+        const d = document.createElement('span'); d.className='pill'; d.textContent=h; historyEl.appendChild(d);
+      });
+    }
+
+    $('#spinBtn').addEventListener('click', ()=>{ ensureAudio(); spin() });
+    $('#previewBtn').addEventListener('click', ()=>{ drawWheel(); flash(resultEl, 'Preview roda diperbarui'); });
+
+    // ---------- Groups ----------
+    $('#groupBtn').addEventListener('click', async ()=>{
+      const n = state.items.length;
+      const g = clamp(+groupsCountEl.value|0, 1, 99);
+      if(n===0){ flash($('#groupsWrap'), 'Tambahkan item dulu', true); return }
+      const items = shuffle([...state.items]);
+      const groups = Array.from({length:g}, ()=>[]);
+      if(state.settings.allowEmpty){
+        // random assign pure
+        items.forEach((it,i)=> groups[Math.floor(Math.random()*g)].push(it));
+      }else{
+        // balanced round-robin
+        items.forEach((it,i)=> groups[i%g].push(it));
+      }
+      await revealGroups(groups);
+    });
+
+    async function revealGroups(groups){
+      const wrap = $('#groupsWrap');
+      wrap.innerHTML='';
+      const delay = (ms)=> new Promise(r=>setTimeout(r, ms));
+      ensureAudio();
+      for(let i=0;i<groups.length;i++){
+        const card = document.createElement('div');
+        card.className='group-card';
+        const title = document.createElement('div'); title.className='group-title'; title.textContent = 'Kelompok ' + (i+1);
+        card.appendChild(title);
+        wrap.appendChild(card);
+        beep(520 + i*30, 0.03, 0.03);
+        await delay(120);
+        for(const m of groups[i]){
+          const el = document.createElement('div'); el.className='member'; el.textContent = m;
+          card.appendChild(el);
+          beep(900, 0.02, 0.02);
+          await delay(90);
+        }
+      }
+      winSound();
+    }
+
+    $('#copyGroupsBtn').addEventListener('click', async ()=>{
+      const groupsEls = $$('#groupsWrap .group-card');
+      if(groupsEls.length===0){ flash($('#groupsWrap'), 'Belum ada hasil kelompok', true); return }
+      const text = groupsEls.map((card, i)=>{
+        const members = [...card.querySelectorAll('.member')].map(m=>'- '+m.textContent).join('\n');
+        return `Kelompok ${i+1}\n${members}`;
+      }).join('\n\n');
+      await navigator.clipboard.writeText(text);
+      flash($('#groupsWrap'), 'Hasil disalin ke clipboard');
+    });
+
+    // ---------- Share & Reset ----------
+    $('#shareBtn').addEventListener('click', async ()=>{
+      const items = state.items.join(', ');
+      const url = location.href.split('#')[0];
+      const text = `Spin & Group – Data: ${items}`;
+      if(navigator.share){
+        try{ await navigator.share({ title:'Spin & Group', text, url }); }
+        catch(e){}
+      }else{
+        await navigator.clipboard.writeText(url);
+        flash($('#shareBtn'), 'URL disalin');
+      }
+    });
+
+    $('#resetBtn').addEventListener('click', ()=>{
+      if(!confirm('Hapus data, riwayat, dan setelan?')) return;
+      localStorage.clear();
+      state.items=[]; state.history=[]; state.angle=0;
+      itemsInput.value=''; renderHistory(); renderCount(); drawWheel();
+      removeWinnerEl.checked=false; allowEmptyEl.checked=false;
+      speedInput.value=1; suspenseInput.value=.6; groupsCountEl.value=2;
+      Object.assign(state.settings, {removeWinner:false, allowEmpty:false, speed:1, suspense:.6, groupsCount:2});
+    });
+
+    // ---------- Helpers ----------
+    function flash(el, msg, bad=false){
+      const orig = el.textContent;
+      const isResult = el === resultEl;
+      if(isResult){ el.textContent = msg; el.classList.toggle('danger', !!bad); }
+      try{ el.style.outline = `2px solid ${bad? 'var(--danger)':'var(--accent)'}` }catch{}
+      setTimeout(()=>{
+        try{ el.style.outline='none' }catch{}
+        if(isResult){ el.textContent = orig; el.classList.remove('danger'); }
+      }, 1200);
+    }
+
+    function resizeCanvases(){
+      const ratio = window.devicePixelRatio || 1;
+      const rect = wheelCanvas.getBoundingClientRect();
+      wheelCanvas.width = rect.width * ratio;
+      wheelCanvas.height = rect.height * ratio;
+      wheelCtx.setTransform(ratio,0,0,ratio,0,0);
+      // fx canvas resized in confetti module
+      drawWheel();
+    }
+    window.addEventListener('resize', resizeCanvases, {passive:true});
+
+    // ---------- Init ----------
+    function init(){
+      const saved = storage.get('items', []);
+      state.items = Array.isArray(saved) ? saved : [];
+      syncToTextarea();
+      renderHistory();
+      resizeCanvases();
+      drawWheel();
+      if('serviceWorker' in navigator){
+        navigator.serviceWorker.register('service-worker.js');
+      }
+    }
+    document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') drawWheel() });
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
